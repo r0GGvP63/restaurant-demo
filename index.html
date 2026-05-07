@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot for Business — Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #f5f0e8;
+            --dark: #221a14;
+            --red: #8b1f30;
+            --gold: #c4a24a;
+            --muted: #8a7e74;
+            --light-bg: #ede8df;
+            --card-bg: #f2ede4;
+            --mid-bg: #2e2318;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--light-bg);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* DEMO BANNER */
+        .demo-banner {
+            background: var(--dark);
+            color: var(--cream);
+            text-align: center;
+            padding: 11px 20px;
+            font-size: 0.78em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .demo-banner span.dot {
+            width: 7px; height: 7px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .demo-banner a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 1px;
+        }
+
+        /* LANGUAGE SWITCHER */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(245,240,232,0.08);
+            border: 1px solid rgba(245,240,232,0.15);
+            border-radius: 100px;
+            padding: 3px 5px;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: rgba(245,240,232,0.45);
+            font-size: 0.75em;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 100px;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .lang-btn.active {
+            background: var(--gold);
+            color: var(--dark);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--cream);
+        }
+
+        /* HEADER */
+        header {
+            background: var(--cream);
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            padding: 20px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--dark);
+            letter-spacing: -0.02em;
+        }
+
+        .logo span {
+            font-size: 0.68em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold);
+            padding: 2px 10px;
+            border-radius: 100px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        nav {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.88em;
+            letter-spacing: 0.03em;
+            transition: color 0.25s;
+            position: relative;
+            padding-bottom: 3px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 1px;
+            background: var(--dark);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover { color: var(--dark); }
+        nav a:hover::after { width: 100%; }
+
+        .nav-cta {
+            background: var(--red);
+            color: white !important;
+            padding: 9px 22px;
+            border-radius: 2px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            font-size: 0.82em !important;
+            text-transform: uppercase;
+            transition: background 0.2s !important;
+        }
+
+        .nav-cta:hover { background: #7d1c2a !important; color: white !important; }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 78vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: var(--dark);
+            padding: 56px 0;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 70% 50%, rgba(155,35,53,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #1c1612 0%, #2a1f18 50%, #1c1612 100%);
+        }
+
+        .hero-texture {
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 60px;
+            max-width: 700px;
+            animation: fadeUp 0.9s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-eyebrow {
+            font-size: 0.75em;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-eyebrow::before {
+            content: '';
+            display: block;
+            width: 32px;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .hero h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.4em, 4.5vw, 3.8em);
+            color: var(--cream);
+            line-height: 1.12;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .hero h2 em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .hero-sub {
+            font-size: 1em;
+            color: rgba(245,240,232,0.55);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            font-weight: 300;
+            max-width: 500px;
+            border-left: 2px solid rgba(201,168,76,0.4);
+            padding-left: 16px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: white;
+            padding: 14px 32px;
+            text-decoration: none;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 2px;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-primary:hover { background: #7d1c2a; transform: translateY(-1px); }
+
+        .btn-ghost {
+            border: 1px solid rgba(245,240,232,0.3);
+            color: var(--cream);
+            padding: 14px 32px;
+            text-decoration: none;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 400;
+            border-radius: 2px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .btn-ghost:hover { border-color: var(--cream); background: rgba(255,255,255,0.05); }
+
+        .hero-side {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            animation: fadeUp 0.9s 0.3s ease both;
+        }
+
+        .stat-card {
+            background: rgba(245,240,232,0.05);
+            border: 1px solid rgba(245,240,232,0.1);
+            padding: 22px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9em;
+            color: var(--gold);
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-card .label {
+            font-size: 0.7em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(245,240,232,0.5);
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* EXPLAINER STRIP */
+        .explainer-strip {
+            background: var(--dark);
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .explainer-strip::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 15% 50%, rgba(155,35,53,0.2) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 50%, rgba(201,168,76,0.08) 0%, transparent 55%);
+            pointer-events: none;
+        }
+
+        .explainer-item {
+            padding: 28px 36px;
+            text-align: left;
+            border-right: 1px solid rgba(255,255,255,0.07);
+            flex: 1;
+            max-width: 340px;
+            position: relative;
+            z-index: 1;
+            transition: background 0.25s;
+        }
+
+        .explainer-item:last-child { border-right: none; }
+        .explainer-item:hover { background: rgba(255,255,255,0.03); }
+
+        .explainer-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--red);
+            display: block;
+            margin-bottom: 14px;
+            line-height: 1;
+        }
+
+        .explainer-item h4 {
+            font-size: 1.05em;
+            font-weight: 500;
+            color: var(--cream);
+            margin-bottom: 10px;
+        }
+
+        .explainer-item p {
+            color: rgba(245,240,232,0.62);
+            font-size: 0.93em;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 90px 60px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-eyebrow {
+            font-size: 0.72em;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .section-header h2 em {
+            font-style: italic;
+            color: var(--red);
+        }
+
+        .section-header p {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 0.97em;
+            line-height: 1.7;
+            max-width: 540px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 300;
+        }
+
+        /* WHAT YOU SEE CARDS */
+        .see-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            max-width: 960px;
+            margin: 0 auto 48px;
+        }
+
+        .see-card {
+            background: var(--card-bg);
+            padding: 36px 30px;
+        }
+
+        .see-card .icon { font-size: 2em; margin-bottom: 16px; display: block; }
+
+        .see-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15em;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .see-card p {
+            font-size: 0.93em;
+            color: var(--muted);
+            line-height: 1.68;
+        }
+
+        .context-note {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 2px;
+            padding: 20px 28px;
+            font-size: 0.9em;
+            color: var(--dark);
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .context-note strong { color: var(--red); }
+
+        /* LEGEND */
+        .legend-block {
+            max-width: 860px;
+            margin: 0 auto 52px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+        }
+
+        .legend-label {
+            background: var(--dark);
+            color: var(--gold);
+            font-size: 0.75em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 12px 24px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--card-bg);
+        }
+
+        .legend-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+        }
+
+        .legend-item:nth-child(2n) { border-right: none; }
+        .legend-item:nth-last-child(-n+2) { border-bottom: none; }
+        .legend-item:nth-child(odd) { background: rgba(0,0,0,0.018); }
+
+        .legend-key {
+            font-size: 0.75em;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--red);
+            white-space: nowrap;
+            min-width: 100px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .legend-val {
+            font-size: 0.93em;
+            color: var(--dark);
+            line-height: 1.55;
+        }
+
+        /* DEMO SECTION */
+        .demo-section {
+            background: var(--dark);
+            padding: 80px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 100%, rgba(155,35,53,0.3) 0%, transparent 60%);
+        }
+
+        .demo-section > * { position: relative; z-index: 1; }
+
+        .demo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold);
+            padding: 7px 18px;
+            border-radius: 100px;
+            font-size: 0.75em;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        .demo-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.1em;
+            color: var(--cream);
+            margin-bottom: 16px;
+        }
+
+        .demo-section > p {
+            color: rgba(245,240,232,0.6);
+            font-size: 1em;
+            max-width: 520px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .demo-queries {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        .demo-query {
+            background: rgba(245,240,232,0.06);
+            border: 1px solid rgba(245,240,232,0.12);
+            color: rgba(245,240,232,0.75);
+            padding: 9px 18px;
+            border-radius: 100px;
+            font-size: 0.82em;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .demo-query:hover {
+            background: rgba(245,240,232,0.14);
+            border-color: rgba(245,240,232,0.3);
+            transform: translateY(-1px);
+        }
+
+        .demo-features {
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .demo-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(245,240,232,0.7);
+            font-size: 0.88em;
+        }
+
+        .demo-feature::before {
+            content: '✓';
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .demo-chat-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(155,35,53,0.4);
+            border: 1px solid rgba(155,35,53,0.6);
+            color: var(--cream);
+            padding: 14px 28px;
+            border-radius: 2px;
+            font-size: 0.88em;
+            letter-spacing: 0.04em;
+        }
+
+        /* USE CASES */
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .use-case-card {
+            background: var(--card-bg);
+            padding: 32px 26px;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .use-case-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 36px rgba(0,0,0,0.07);
+            z-index: 1;
+        }
+
+        .use-case-card .icon { font-size: 1.8em; margin-bottom: 14px; display: block; }
+
+        .use-case-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .use-case-card p {
+            font-size: 0.9em;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        /* GET YOUR VERSION */
+        .get-version {
+            background: var(--dark);
+            padding: 90px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .get-version::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .get-version > * { position: relative; z-index: 1; }
+        .get-version .section-header { margin-bottom: 40px; }
+
+        .get-version .section-eyebrow { color: var(--gold); }
+
+        .get-version .section-header h2 {
+            color: var(--cream);
+        }
+
+        .get-version .section-header h2 em {
+            color: var(--gold);
+        }
+
+        .get-version .section-header p {
+            color: rgba(245,240,232,0.55);
+        }
+
+        .steps-row {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 860px;
+            margin: 0 auto 48px;
+        }
+
+        .step {
+            flex: 1;
+            padding: 28px 24px;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+        }
+
+        .step:last-child { border-right: none; }
+
+        .step-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: var(--gold);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .step h4 {
+            font-size: 0.95em;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .step p {
+            font-size: 0.88em;
+            color: rgba(245,240,232,0.5);
+            line-height: 1.65;
+        }
+
+        .scarcity-note {
+            font-size: 0.8em;
+            color: rgba(245,240,232,0.45);
+            margin-top: 20px;
+            letter-spacing: 0.04em;
+        }
+
+        .scarcity-note strong { color: var(--gold); }
+
+        .cta-cluster {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .btn-dark {
+            background: rgba(245,240,232,0.1);
+            border: 1px solid rgba(245,240,232,0.25);
+            color: var(--cream);
+            padding: 14px 34px;
+            text-decoration: none;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 2px;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-dark:hover { background: #2e261e; transform: translateY(-1px); }
+
+        /* CONTACT */
+        .contact-section {
+            background: #120e0a;
+            padding: 72px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%);
+        }
+
+        .contact-section > * { position: relative; z-index: 1; }
+
+        .contact-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9em;
+            color: var(--cream);
+            margin-bottom: 14px;
+        }
+
+        .contact-section p {
+            color: rgba(245,240,232,0.55);
+            font-size: 0.95em;
+            max-width: 460px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .contact-options {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 13px 28px;
+            border-radius: 2px;
+            text-decoration: none;
+            font-size: 0.84em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 500;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .contact-btn:hover { transform: translateY(-1px); }
+
+        .contact-btn.tg {
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.35);
+            color: var(--gold);
+        }
+
+        .contact-btn.tg:hover { background: rgba(201,168,76,0.25); }
+
+        .contact-btn.em {
+            border: 1px solid rgba(245,240,232,0.18);
+            color: var(--cream);
+        }
+
+        .contact-btn.em:hover { background: rgba(245,240,232,0.05); }
+
+        /* FOOTER */
+        footer {
+            background: var(--cream);
+            border-top: 1px solid rgba(0,0,0,0.07);
+            padding: 28px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer p {
+            font-size: 0.8em;
+            color: var(--muted);
+        }
+
+        /* PRICING */
+        .pricing-section {
+            background: var(--light-bg);
+            padding: 90px 60px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            max-width: 860px;
+            margin: 0 auto 40px;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            padding: 40px 36px;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            background: var(--dark);
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            font-size: 0.7em;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.35);
+            color: var(--gold);
+            padding: 3px 12px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        .pricing-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .pricing-card.featured h3 {
+            color: var(--cream);
+        }
+
+        .pricing-sub {
+            font-size: 0.88em;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .pricing-card.featured .pricing-sub {
+            color: rgba(245,240,232,0.55);
+        }
+
+        .pricing-price {
+            margin-bottom: 28px;
+        }
+
+        .pricing-price .amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4em;
+            color: var(--dark);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .pricing-card.featured .pricing-price .amount {
+            color: var(--gold);
+        }
+
+        .pricing-price .period {
+            font-size: 0.85em;
+            color: var(--muted);
+            margin-left: 4px;
+        }
+
+        .pricing-card.featured .pricing-price .period {
+            color: rgba(245,240,232,0.45);
+        }
+
+        .pricing-price .setup-note {
+            display: block;
+            font-size: 0.8em;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .pricing-card.featured .pricing-price .setup-note {
+            color: rgba(245,240,232,0.4);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            font-size: 0.9em;
+            color: var(--dark);
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.45;
+        }
+
+        .pricing-card.featured .pricing-features li {
+            color: rgba(245,240,232,0.8);
+            border-bottom-color: rgba(255,255,255,0.07);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--gold);
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .pricing-cta {
+            display: block;
+            text-align: center;
+            padding: 12px 28px;
+            text-decoration: none;
+            font-size: 0.83em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-radius: 2px;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .pricing-cta:hover { transform: translateY(-1px); }
+
+        .pricing-cta.primary {
+            background: var(--red);
+            color: white;
+        }
+
+        .pricing-cta.primary:hover { background: #7d1c2a; }
+
+        .pricing-cta.outline {
+            border: 1px solid rgba(0,0,0,0.18);
+            color: var(--dark);
+        }
+
+        .pricing-cta.outline:hover { background: rgba(0,0,0,0.04); }
+
+        .pricing-pilot-note {
+            max-width: 860px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--muted);
+            line-height: 1.65;
+            padding: 20px 28px;
+            border: 1px solid rgba(201,168,76,0.2);
+            background: rgba(201,168,76,0.04);
+        }
+
+        .pricing-pilot-note strong { color: var(--dark); }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .use-cases-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 18px 24px; }
+            nav { display: none; }
+            .hero-content { padding: 0 24px; }
+            .hero-side { display: none; }
+            .section { padding: 60px 24px; }
+            .see-grid { grid-template-columns: 1fr; }
+            .use-cases-grid { grid-template-columns: 1fr 1fr; }
+            .explainer-strip { flex-direction: column; align-items: center; }
+            .explainer-item { max-width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); }
+            .steps-row { flex-direction: column; }
+            .step { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.07); }
+            footer { flex-direction: column; gap: 12px; text-align: center; }
+            .get-version { padding: 60px 24px; }
+            .contact-section { padding: 60px 24px; }
+            .demo-section { padding: 60px 24px; }
+            .pricing-section { padding: 60px 24px; }
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DEMO BANNER -->
+    <div class="demo-banner">
+        <span class="dot"></span>
+        <span data-i18n="banner_text">Interactive Demo · AI Chatbot for Business (restaurant example)</span>
+        &nbsp;·&nbsp;
+        <a href="#get-version" data-i18n="banner_cta">Get your version →</a>
+        <span class="dot"></span>
+        &nbsp;&nbsp;
+        <div class="lang-switcher">
+            <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+            <button class="lang-btn active" id="btn-de" onclick="setLang('de')">DE</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <h1>AI Chatbot</h1>
+            <span data-i18n="logo_badge">for Business</span>
+        </div>
+        <div class="header-right">
+            <nav>
+                <a href="#what-you-see" onclick="smoothScrollTo(event,'what-you-see')" data-i18n="nav_how">How it works</a>
+                <a href="#use-cases" onclick="smoothScrollTo(event,'use-cases')" data-i18n="nav_cases">Use cases</a>
+                <a href="#pricing" onclick="smoothScrollTo(event,'pricing')" data-i18n="nav_pricing">Pricing</a>
+                <a href="#contact" class="nav-cta" onclick="smoothScrollTo(event,'contact')" data-i18n="nav_cta">Request setup</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-texture"></div>
+        <div class="hero-content">
+            <div class="hero-eyebrow" data-i18n="hero_eyebrow">AI Automation</div>
+            <h2 data-i18n="hero_h2">AI chatbot that answers customers<br>and captures leads <em>24/7</em></h2>
+            <p class="hero-sub" data-i18n="hero_sub">A working demo built around a restaurant — the same system can be adapted and deployed for your business within 3–7 days.</p>
+            <div class="hero-cta">
+                <a href="#demo-section" class="btn-primary" onclick="smoothScrollTo(event, 'demo-section')" data-i18n="hero_btn1">Try the demo</a>
+                <a href="#get-version" class="btn-ghost" onclick="smoothScrollTo(event, 'get-version')" data-i18n="hero_btn2">Get your version</a>
+            </div>
+        </div>
+        <div class="hero-side">
+            <div class="stat-card">
+                <span class="num">24/7</span>
+                <span class="label" data-i18n="stat1">Always on</span>
+            </div>
+            <div class="stat-card">
+                <span class="num">3–7</span>
+                <span class="label" data-i18n="stat2">Days to launch</span>
+            </div>
+            <div class="stat-card">
+                <span class="num">∞</span>
+                <span class="label" data-i18n="stat3">Any industry</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPLAINER STRIP -->
+    <div class="explainer-strip">
+        <div class="explainer-item">
+            <span class="explainer-num">01</span>
+            <h4 data-i18n="exp1_h">Built-in knowledge base</h4>
+            <p data-i18n="exp1_p">Answers questions about your products, pricing and policies — instantly, 24/7.</p>
+        </div>
+        <div class="explainer-item">
+            <span class="explainer-num">02</span>
+            <h4 data-i18n="exp2_h">Real conversation, no scripts</h4>
+            <p data-i18n="exp2_p">Remembers context, speaks multiple languages, escalates when needed.</p>
+        </div>
+        <div class="explainer-item">
+            <span class="explainer-num">03</span>
+            <h4 data-i18n="exp3_h">Captures leads & bookings</h4>
+            <p data-i18n="exp3_p">Collects names and contacts automatically — routes them to the right person.</p>
+        </div>
+    </div>
+
+    <!-- WHAT YOU ARE SEEING -->
+    <section class="section" id="what-you-see" style="background: var(--light-bg);">
+        <div class="section-header">
+            <div class="section-eyebrow" data-i18n="see_eyebrow">What you are seeing</div>
+            <h2 data-i18n="see_h2">A working AI chatbot — <em>for a restaurant</em></h2>
+            <p data-i18n="see_p">This demo features a fully functional chatbot deployed for "Bella Italia." It answers real questions, acts like a trained employee, and captures booking requests — entirely automatically.</p>
+        </div>
+
+        <!-- RESTAURANT LEGEND -->
+        <div class="legend-block">
+            <div class="legend-label" data-i18n="legend_label">Demo business — Bella Italia Ristorante</div>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_type_k">Type</span>
+                    <span class="legend-val" data-i18n="leg_type_v">Italian restaurant, Düsseldorf city centre</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_hours_k">Hours</span>
+                    <span class="legend-val">Mon–Fri 12:00–22:00 · Sat–Sun 11:00–23:00</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_cuisine_k">Cuisine</span>
+                    <span class="legend-val" data-i18n="leg_cuisine_v">Tuscan recipes, wood-fired pizza, homemade pasta, seasonal specials</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_seating_k">Seating</span>
+                    <span class="legend-val" data-i18n="leg_seating_v">60 seats inside · 20 on the terrace · private dining room for up to 20</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_book_k">Bookings</span>
+                    <span class="legend-val" data-i18n="leg_book_v">Via chatbot, phone, or walk-in; groups of 8+ require deposit</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_menu_k">Menu highlights</span>
+                    <span class="legend-val">Pizza Margherita €14.50 · Pasta Carbonara €16.90 · Bistecca Fiorentina €38 · Tiramisù €8.50</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_diet_k">Dietary</span>
+                    <span class="legend-val" data-i18n="leg_diet_v">Vegetarian and gluten-free options available; allergen info on request</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-key" data-i18n="leg_contact_k">Contact</span>
+                    <span class="legend-val">+49 211 123456 · info@bellaitalia-demo.de · Königsallee 15, Düsseldorf</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="context-note" data-i18n="context_note">
+            <strong>This is a demo</strong> built around a restaurant — a relatable, easy-to-understand example. The same logic — knowledge base, automatic replies, lead capture — works for <strong>any business:</strong> clinics, agencies, e-commerce, real estate, SaaS, and more.
+        </div>
+    </section>
+
+    <!-- DEMO INTERACTION -->
+    <section class="demo-section" id="demo-section">
+        <div class="demo-badge">
+            <span data-i18n="demo_badge">Interactive Demo</span>
+        </div>
+        <h2 data-i18n="demo_h2">Try the chatbot yourself</h2>
+        <p data-i18n="demo_p">Click the chat icon in the bottom right corner and ask anything. Here are some real questions to get you started:</p>
+        <div class="demo-queries">
+            <button class="demo-query" onclick="sendToChat('What are your opening hours?')" data-i18n-chat="q1" data-i18n="dq1">What are your opening hours?</button>
+            <button class="demo-query" onclick="sendToChat('Do you have vegetarian options?')" data-i18n-chat="q2" data-i18n="dq2">Do you have vegetarian options?</button>
+            <button class="demo-query" onclick="sendToChat('I\'d like to book a table for 4')" data-i18n-chat="q3" data-i18n="dq3">I'd like to book a table for 4</button>
+            <button class="demo-query" onclick="sendToChat('How can I contact you?')" data-i18n-chat="q4" data-i18n="dq4">How can I contact you?</button>
+            <button class="demo-query" onclick="sendToChat('What\'s on the menu?')" data-i18n-chat="q5" data-i18n="dq5">What's on the menu?</button>
+        </div>
+        <div class="demo-features">
+            <div class="demo-feature" data-i18n="feat1">Multilingual</div>
+            <div class="demo-feature" data-i18n="feat2">Real AI responses</div>
+            <div class="demo-feature" data-i18n="feat3">Captures booking requests</div>
+            <div class="demo-feature" data-i18n="feat4">No app required</div>
+        </div>
+        <div class="demo-chat-hint" data-i18n="demo_hint">
+            💬 Click the chat icon in the bottom right — start asking →
+        </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="section" id="use-cases" style="background: var(--light-bg);">
+        <div class="section-header">
+            <div class="section-eyebrow" data-i18n="uc_eyebrow">Beyond restaurants</div>
+            <h2 data-i18n="uc_h2">What this system does <em>for any business</em></h2>
+            <p data-i18n="uc_p">The same chatbot architecture can be configured for your industry, your knowledge base, and your workflows — in days, not months.</p>
+        </div>
+        <div class="use-cases-grid">
+            <div class="use-case-card">
+                <span class="icon">🎯</span>
+                <h3 data-i18n="uc1_h">Lead Qualification</h3>
+                <p data-i18n="uc1_p">Ask qualifying questions, score leads automatically, and route hot prospects to your sales team in real time.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🛎️</span>
+                <h3 data-i18n="uc2_h">Customer Support</h3>
+                <p data-i18n="uc2_p">Answer FAQs, handle common issues, and escalate complex cases — without growing your support team.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">📅</span>
+                <h3 data-i18n="uc3_h">Booking Automation</h3>
+                <p data-i18n="uc3_p">Let clients schedule appointments, demos, or consultations 24/7 — integrated into your existing calendar.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🔗</span>
+                <h3 data-i18n="uc4_h">CRM & Integrations</h3>
+                <p data-i18n="uc4_p">Connect to your CRM, email, Notion, or Airtable. Every conversation automatically updates your systems.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🏥</span>
+                <h3 data-i18n="uc5_h">Clinics & Healthcare</h3>
+                <p data-i18n="uc5_p">Answer patient questions, handle appointment requests, and collect intake information before the visit.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🏠</span>
+                <h3 data-i18n="uc6_h">Real Estate</h3>
+                <p data-i18n="uc6_p">Qualify buyer and renter inquiries, schedule viewings, and collect property preferences automatically.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🛍️</span>
+                <h3 data-i18n="uc7_h">E-commerce</h3>
+                <p data-i18n="uc7_p">Answer product questions, handle return policies, and recommend items based on customer needs.</p>
+            </div>
+            <div class="use-case-card">
+                <span class="icon">🏢</span>
+                <h3 data-i18n="uc8_h">Agencies & SaaS</h3>
+                <p data-i18n="uc8_p">Automate discovery calls, handle onboarding questions, and qualify trial users before they churn.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing-section" id="pricing">
+        <div class="section-header">
+            <div class="section-eyebrow" data-i18n="pr_eyebrow">Preise & Pakete</div>
+            <h2 data-i18n="pr_h2">Transparent. <em>Keine Überraschungen.</em></h2>
+            <p data-i18n="pr_p">Ein Produkt, zwei Wege — fertig konfigurierter KI-Chatbot oder Ihre eigene Idee, umgesetzt.</p>
+        </div>
+        <div class="pricing-grid">
+            <!-- Standard product -->
+            <div class="pricing-card">
+                <div class="pricing-badge" data-i18n="pr1_badge">KI-Chatbot für Websites</div>
+                <h3 data-i18n="pr1_h">Fertig in 3–7 Tagen</h3>
+                <p class="pricing-sub" data-i18n="pr1_sub">KI-Chatbot für Ihre Website — beantwortet Fragen, erfasst Leads und Buchungsanfragen. Auf Ihre Branche konfiguriert.</p>
+                <div class="pricing-price">
+                    <span class="amount">€69</span><span class="period" data-i18n="pr_per">/Monat</span>
+                    <span class="setup-note" data-i18n="pr1_setup">Setup: kostenlos (Pilotphase) · danach einmalig €149</span>
+                </div>
+                <ul class="pricing-features">
+                    <li data-i18n="pr1_f1">Wissensdatenbank mit Ihren Infos befüllt</li>
+                    <li data-i18n="pr1_f2">Lead- & Buchungserfassung automatisch</li>
+                    <li data-i18n="pr1_f3">Mehrsprachig (DE / EN)</li>
+                    <li data-i18n="pr1_f4">Einbettung auf Ihrer Website</li>
+                    <li data-i18n="pr1_f5">Laufender Support per Telegram/E-Mail</li>
+                </ul>
+                <a href="#contact" class="pricing-cta outline" onclick="smoothScrollTo(event,'contact')" data-i18n="pr1_cta">Jetzt anfragen</a>
+            </div>
+            <!-- Custom idea -->
+            <div class="pricing-card featured">
+                <div class="pricing-badge" data-i18n="pr2_badge">Ihre Idee</div>
+                <h3 data-i18n="pr2_h">Custom-Automatisierung</h3>
+                <p class="pricing-sub" data-i18n="pr2_sub">Sie verlieren täglich Zeit mit Aufgaben, die ein System erledigen könnte. Sagen Sie mir, wo der Schmerz ist — ich baue die Lösung.</p>
+                <div class="pricing-price">
+                    <span class="amount" data-i18n="pr2_amount">Auf Anfrage</span>
+                    <span class="setup-note" data-i18n="pr2_setup">Kurzes Gespräch → konkretes Angebot innerhalb von 24h</span>
+                </div>
+                <ul class="pricing-features">
+                    <li data-i18n="pr2_f1">Kunden stellen immer wieder dieselben Fragen</li>
+                    <li data-i18n="pr2_f2">Termine und Anfragen gehen im Alltagschaos unter</li>
+                    <li data-i18n="pr2_f3">Interessenten warten zu lange auf eine Antwort</li>
+                    <li data-i18n="pr2_f4">Wichtige Infos aus Gesprächen gehen verloren</li>
+                    <li data-i18n="pr2_f5">Preis nach Aufwand — keine versteckten Kosten</li>
+                </ul>
+                <a href="#contact" class="pricing-cta primary" onclick="smoothScrollTo(event,'contact')" data-i18n="pr2_cta">Idee besprechen</a>
+            </div>
+        </div>
+        <p class="pricing-pilot-note" data-i18n="pr_note"><strong>Pilotphase:</strong> Die ersten 3 Kunden zahlen keinen Setup — nur €69/Monat ab dem ersten Tag. So tragen beide Seiten kein Risiko — und ich bekomme echte Praxiserfahrung.</p>
+    </section>
+
+    <!-- GET YOUR VERSION -->
+    <section class="get-version" id="get-version">
+        <div class="section-header">
+            <div class="section-eyebrow" data-i18n="gv_eyebrow">Ready to go live?</div>
+            <h2 data-i18n="gv_h2">Get your own <em>custom chatbot</em></h2>
+            <p data-i18n="gv_p">We configure the system for your business — your knowledge base, your tone, your workflows. Most clients go live within a week.</p>
+        </div>
+        <div class="steps-row">
+            <div class="step">
+                <span class="step-num">1</span>
+                <h4 data-i18n="step1_h">You share your use case</h4>
+                <p data-i18n="step1_p">Tell us what you need: support, leads, bookings, or something fully custom.</p>
+            </div>
+            <div class="step">
+                <span class="step-num">2</span>
+                <h4 data-i18n="step2_h">We configure your AI</h4>
+                <p data-i18n="step2_p">Knowledge base, conversation flow, integrations — all set up for your business.</p>
+            </div>
+            <div class="step">
+                <span class="step-num">3</span>
+                <h4 data-i18n="step3_h">You go live in 3–7 days</h4>
+                <p data-i18n="step3_p">Embed on your site, connect to your tools, and start capturing leads immediately.</p>
+            </div>
+        </div>
+        <div class="cta-cluster">
+            <a href="#contact" class="btn-primary" onclick="smoothScrollTo(event, 'contact')" data-i18n="gv_btn1">Request setup</a>
+            <a href="#demo-section" class="btn-dark" onclick="smoothScrollTo(event, 'demo-section')" data-i18n="gv_btn2">Try the demo first</a>
+        </div>
+        <p class="scarcity-note" data-i18n="scarcity"><strong>⚠ Limited slots available.</strong> We take on a small number of new projects each month to ensure quality.</p>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact-section" id="contact">
+        <h2 data-i18n="contact_h2">Let's talk about your business</h2>
+        <p data-i18n="contact_p">Send your use case and I'll show you exactly how this applies — with a tailored example or a personalised demo.</p>
+        <div class="contact-options">
+            <a href="https://t.me/r0ggvp" class="contact-btn tg">
+                ✈ Telegram
+            </a>
+            <a href="https://mail.google.com/mail/?view=cm&to=features.automation@gmail.com" target="_blank" rel="noopener" class="contact-btn em" data-i18n="contact_email">
+                ✉ Email us
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p data-i18n="footer_text">© 2026 AI Chatbot Demo · This page is a product demonstration.</p>
+    </footer>
+
+    <!-- n8n chat widget -->
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <style>
+      :root {
+        --chat--color--primary:            #8b1f30;
+        --chat--color--primary-shade-50:   #7a1a29;
+        --chat--color--primary--shade-100: #6a1522;
+        --chat--color--secondary:          #c4a24a;
+        --chat--color-secondary-shade-50:  #b0903f;
+        --chat--color-white:               #f5f0e8;
+        --chat--color-light:               #ede8df;
+        --chat--color-light-shade-50:      #ddd8cf;
+        --chat--color-light-shade-100:     #c2bdb4;
+        --chat--color-medium:              #8a7e74;
+        --chat--color-dark:                #221a14;
+        --chat--color-disabled:            #c2bdb4;
+        --chat--color-typing:              #3a2e26;
+        --chat--spacing:                   1rem;
+        --chat--border-radius:             0.25rem;
+        --chat--transition-duration:       0.15s;
+        --chat--font-family:               'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        --chat--window--width:             400px;
+        --chat--window--height:            600px;
+        --chat--window--bottom:            var(--chat--spacing);
+        --chat--window--right:             var(--chat--spacing);
+        --chat--window--z-index:           9999;
+        --chat--window--border:            1px solid rgba(196,162,74,0.25);
+        --chat--window--border-radius:     6px;
+        --chat--window--margin-bottom:     var(--chat--spacing);
+        --chat--header-height:             auto;
+        --chat--header--padding:           var(--chat--spacing);
+        --chat--header--background:        #2e2318;
+        --chat--header--color:             #c4a24a;
+        --chat--header--border-top:        none;
+        --chat--header--border-bottom:     1px solid rgba(196,162,74,0.2);
+        --chat--header--border-left:       none;
+        --chat--header--border-right:      none;
+        --chat--heading--font-size:        1.3em;
+        --chat--subtitle--font-size:       0.82em;
+        --chat--subtitle--line-height:     1.6;
+        --chat--message--font-size:        0.95rem;
+        --chat--message--padding:          0.75rem 1rem;
+        --chat--message--border-radius:    6px;
+        --chat--message-line-height:       1.55;
+        --chat--message--margin-bottom:    0.6rem;
+        --chat--message--bot--background:  #f2ede4;
+        --chat--message--bot--color:       #221a14;
+        --chat--message--bot--border:      1px solid rgba(196,162,74,0.18);
+        --chat--message--user--background: #2e2318;
+        --chat--message--user--color:      #f5f0e8;
+        --chat--message--user--border:     none;
+        --chat--message--pre--background:  rgba(34,26,20,0.06);
+        --chat--messages-list--padding:    var(--chat--spacing);
+        --chat--toggle--size:              60px;
+        --chat--toggle--width:             var(--chat--toggle--size);
+        --chat--toggle--height:            var(--chat--toggle--size);
+        --chat--toggle--border-radius:     50%;
+        --chat--toggle--background:        #8b1f30;
+        --chat--toggle--hover--background: #7a1a29;
+        --chat--toggle--active--background:#6a1522;
+        --chat--toggle--color:             #f5f0e8;
+        --chat--textarea--height:          50px;
+        --chat--textarea--max-height:      30rem;
+        --chat--input--font-size:          0.95rem;
+        --chat--input--border:             0;
+        --chat--input--border-radius:      0;
+        --chat--input--padding:            0.8rem 1rem;
+        --chat--input--background:         #f5f0e8;
+        --chat--input--text-color:         #221a14;
+        --chat--input--line-height:        1.5;
+        --chat--input--placeholder--font-size: var(--chat--input--font-size);
+        --chat--input--border-active:      0;
+        --chat--input--left--panel--width: 2rem;
+        --chat--button--padding:           calc(var(--chat--spacing) * 5 / 8) var(--chat--spacing);
+        --chat--button--border-radius:     4px;
+        --chat--button--font-size:         0.95rem;
+        --chat--button--line-height:       1;
+        --chat--button--color--primary:             #f5f0e8;
+        --chat--button--background--primary:        #8b1f30;
+        --chat--button--border--primary:            none;
+        --chat--button--color--primary--hover:      #f5f0e8;
+        --chat--button--background--primary--hover: #7a1a29;
+        --chat--button--border--primary--hover:     none;
+        --chat--button--color--primary--disabled:   #c2bdb4;
+        --chat--button--background--primary--disabled: #5a1520;
+        --chat--button--border--primary--disabled:  none;
+        --chat--button--color--secondary:            #f5f0e8;
+        --chat--button--background--secondary:       #8a7e74;
+        --chat--button--border--secondary:           none;
+        --chat--button--color--secondary--hover:     #f5f0e8;
+        --chat--button--background--secondary--hover:#7a6e65;
+        --chat--button--border--secondary--hover:    none;
+        --chat--button--color--secondary--disabled:  #c2bdb4;
+        --chat--button--background--secondary--disabled:#b5afa9;
+        --chat--button--border--secondary--disabled: none;
+        --chat--close--button--color-hover:          #c4a24a;
+        --chat--input--send--button--background:       #f5f0e8;
+        --chat--input--send--button--color:            #8b1f30;
+        --chat--input--send--button--background-hover: #ede8df;
+        --chat--input--send--button--color-hover:      #7a1a29;
+        --chat--input--file--button--background:       #f5f0e8;
+        --chat--input--file--button--color:            #8b1f30;
+        --chat--input--file--button--background-hover: #f5f0e8;
+        --chat--input--file--button--color-hover:      #7a1a29;
+        --chat--files-spacing:   0.25rem;
+        --chat--body--background: #ede8df;
+        --chat--footer--background:#e6e1d8;
+        --chat--footer--color:     #8a7e74;
+      }
+      .chat-message { max-width: 78%; }
+    </style>
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+        createChat({
+            webhookUrl: 'https://features-demo.duckdns.org/webhook/eb312625-4f4a-4ee7-a316-f0b19d1aa0a1/chat',
+            target: '#n8n-chat',
+            mode: 'window',
+            chatInputKey: 'chatInput',
+            i18n: {
+                en: {
+                    title: 'AI Assistant — Demo',
+                    subtitle: 'Ask anything: menu, hours, bookings, or how this works.',
+                    inputPlaceholder: 'Type your question…',
+                }
+            }
+        });
+    </script>
+    <div id="n8n-chat"></div>
+
+    <script>
+        // ── TRANSLATIONS ──────────────────────────────────────────────────────
+        const translations = {
+            en: {
+                banner_text: 'Interactive Demo · AI Chatbot for Business (restaurant example)',
+                banner_cta: 'Get your version →',
+                logo_badge: 'for Business',
+                nav_how: 'How it works',
+                nav_cases: 'Use cases',
+                nav_pricing: 'Pricing',
+                nav_get: 'Get yours',
+                nav_cta: 'Request setup',
+                hero_eyebrow: 'AI Automation · powered by n8n',
+                hero_h2: 'AI chatbot that answers customers and captures leads <em>24/7</em>',
+                hero_sub: 'A working demo built around a restaurant — the same system can be adapted and deployed for your business within 3–7 days.',
+                hero_btn1: 'Try the demo',
+                hero_btn2: 'Get your version',
+                stat1: 'Always on',
+                stat2: 'Days to launch',
+                stat3: 'Any industry',
+                exp1_h: 'Built-in knowledge base',
+                exp1_p: 'Loaded with your products, services, pricing, and policies — answers customer questions instantly, around the clock, without staff.',
+                exp2_h: 'Real conversation, no scripts',
+                exp2_p: 'Handles multi-turn dialogue like a trained employee — remembers context, speaks multiple languages, and knows when to escalate.',
+                exp3_h: 'Captures leads & bookings',
+                exp3_p: 'Collects names, contacts, and requests during every conversation — and routes them to the right person automatically.',
+                see_eyebrow: 'What you are seeing',
+                see_h2: 'A working AI chatbot — <em>for a restaurant</em>',
+                see_p: 'This demo features a fully functional chatbot deployed for "Bella Italia." It answers real questions, acts like a trained employee, and captures booking requests — entirely automatically.',
+                legend_label: 'Demo business — Bella Italia Ristorante',
+                leg_type_k: 'Type', leg_type_v: 'Italian restaurant, Düsseldorf city centre',
+                leg_hours_k: 'Hours',
+                leg_cuisine_k: 'Cuisine', leg_cuisine_v: 'Tuscan recipes, wood-fired pizza, homemade pasta, seasonal specials',
+                leg_seating_k: 'Seating', leg_seating_v: '60 seats inside · 20 on the terrace · private dining room for up to 20',
+                leg_book_k: 'Bookings', leg_book_v: 'Via chatbot, phone, or walk-in; groups of 8+ require deposit',
+                leg_menu_k: 'Menu highlights',
+                leg_diet_k: 'Dietary', leg_diet_v: 'Vegetarian and gluten-free options available; allergen info on request',
+                leg_contact_k: 'Contact',
+                context_note: '<strong>This is a demo</strong> built around a restaurant — a relatable, easy-to-understand example. The same logic — knowledge base, automatic replies, lead capture — works for <strong>any business:</strong> clinics, agencies, e-commerce, real estate, SaaS, and more.',
+                demo_badge: 'Interactive Demo',
+                demo_h2: 'Try the chatbot yourself',
+                demo_p: 'Click the chat icon in the bottom right corner and ask anything. Here are some real questions to get you started:',
+                dq1: 'What are your opening hours?',
+                dq2: 'Do you have vegetarian options?',
+                dq3: "I'd like to book a table for 4",
+                dq4: 'How can I contact you?',
+                dq5: "What's on the menu?",
+                feat1: 'Multilingual (DE / EN / RU)',
+                feat2: 'Real AI responses',
+                feat3: 'Captures booking requests',
+                feat4: 'No app required',
+                demo_hint: '💬 Click the chat icon in the bottom right — start asking →',
+                uc_eyebrow: 'Beyond restaurants',
+                uc_h2: 'What this system does <em>for any business</em>',
+                uc_p: 'The same chatbot architecture can be configured for your industry, your knowledge base, and your workflows — in days, not months.',
+                uc1_h: 'Lead Qualification', uc1_p: 'Ask qualifying questions, score leads automatically, and route hot prospects to your sales team in real time.',
+                uc2_h: 'Customer Support', uc2_p: 'Answer FAQs, handle common issues, and escalate complex cases — without growing your support team.',
+                uc3_h: 'Booking Automation', uc3_p: 'Let clients schedule appointments, demos, or consultations 24/7 — integrated into your existing calendar.',
+                uc4_h: 'CRM & Integrations', uc4_p: 'Connect to your CRM, email, Notion, or Airtable. Every conversation automatically updates your systems.',
+                uc5_h: 'Clinics & Healthcare', uc5_p: 'Answer patient questions, handle appointment requests, and collect intake information before the visit.',
+                uc6_h: 'Real Estate', uc6_p: 'Qualify buyer and renter inquiries, schedule viewings, and collect property preferences automatically.',
+                uc7_h: 'E-commerce', uc7_p: 'Answer product questions, handle return policies, and recommend items based on customer needs.',
+                uc8_h: 'Agencies & SaaS', uc8_p: 'Automate discovery calls, handle onboarding questions, and qualify trial users before they churn.',
+                pr_eyebrow: 'Pricing', pr_h2: 'Transparent. <em>No surprises.</em>', pr_p: 'One product, two paths — ready-made AI chatbot or your own idea, built.',
+                pr1_badge: 'AI Chatbot for Websites', pr1_h: 'Live in 3–7 days',
+                pr1_sub: 'AI chatbot for your website — answers questions, captures leads and booking requests. Configured for your industry.',
+                pr_per: '/month', pr1_setup: 'Setup: free (pilot phase) · afterwards one-time €149',
+                pr1_f1: 'Knowledge base filled with your info', pr1_f2: 'Lead & booking capture — automatic',
+                pr1_f3: 'Multilingual (DE / EN)', pr1_f4: 'Embedded on your website', pr1_f5: 'Ongoing support via Telegram/email',
+                pr1_cta: 'Get in touch',
+                pr2_badge: 'Your Idea', pr2_h: 'Custom Automation',
+                pr2_sub: "Every day you lose time on tasks a system could handle. Tell me where it hurts — I'll build the fix.",
+                pr2_amount: 'On request', pr2_setup: 'Short call → concrete quote within 24h',
+                pr2_f1: 'Customers keep asking the same questions',
+                pr2_f2: 'Appointments and enquiries get lost in daily chaos',
+                pr2_f3: 'Potential clients wait too long for a reply',
+                pr2_f4: 'Useful information from conversations just disappears',
+                pr2_f5: 'Price by scope — no hidden costs',
+                pr2_cta: 'Discuss your idea',
+                pr_note: '<strong>Pilot phase:</strong> The first 3 clients pay no setup fee — just €69/month from day one. Zero risk on both sides — and I get real-world experience.',
+                gv_eyebrow: 'Ready to go live?',
+                gv_h2: 'Get your own <em>custom chatbot</em>',
+                gv_p: 'We configure the system for your business — your knowledge base, your tone, your workflows. Most clients go live within a week.',
+                step1_h: 'You share your use case', step1_p: 'Tell us what you need: support, leads, bookings, or something fully custom.',
+                step2_h: 'We configure your AI', step2_p: 'Knowledge base, conversation flow, integrations — all set up for your business.',
+                step3_h: 'You go live in 3–7 days', step3_p: 'Embed on your site, connect to your tools, and start capturing leads immediately.',
+                gv_btn1: 'Request setup',
+                gv_btn2: 'Try the demo first',
+                scarcity: 'I take on 2–3 new clients per month to make sure every setup gets proper attention.',
+                contact_h2: "Let's talk about your business",
+                contact_p: "Send your use case and I'll show you exactly how this applies — with a tailored example or a personalised demo.",
+                contact_email: '✉ Email us',
+                footer_text: '© 2026 AI Chatbot Demo · This page is a product demonstration.',
+            },
+            de: {
+                banner_text: 'Interaktive Demo · KI-Chatbot für Unternehmen (Restaurant-Beispiel)',
+                banner_cta: 'Ihre Version anfragen →',
+                logo_badge: 'für Ihr Business',
+                nav_how: 'Wie es funktioniert',
+                nav_cases: 'Anwendungsfälle',
+                nav_pricing: 'Preise',
+                nav_get: 'Jetzt anfragen',
+                nav_cta: 'Setup anfragen',
+                hero_eyebrow: 'KI-Automatisierung · powered by n8n',
+                hero_h2: 'KI-Chatbot, der Kunden antwortet und Leads erfasst — <em>rund um die Uhr</em>',
+                hero_sub: 'Eine vollständig funktionierende Demo auf Basis eines Restaurants — dasselbe System lässt sich in 3–7 Tagen für Ihr Unternehmen anpassen und live schalten.',
+                hero_btn1: 'Demo ausprobieren',
+                hero_btn2: 'Ihre Version anfragen',
+                stat1: 'Immer verfügbar',
+                stat2: 'Tage bis zum Launch',
+                stat3: 'Jede Branche',
+                exp1_h: 'Integrierte Wissensdatenbank',
+                exp1_p: 'Befüllt mit Ihren Produkten, Preisen und Richtlinien — beantwortet Kundenfragen sofort, rund um die Uhr, ohne Mitarbeiter.',
+                exp2_h: 'Echtes Gespräch, kein Skript',
+                exp2_p: 'Führt mehrstufige Dialoge wie ein geschulter Mitarbeiter — erinnert sich an den Kontext, spricht mehrere Sprachen und weiß, wann es eskalieren soll.',
+                exp3_h: 'Leads & Buchungen erfassen',
+                exp3_p: 'Sammelt Namen, Kontakte und Anfragen in jedem Gespräch — und leitet sie automatisch an die richtige Person weiter.',
+                see_eyebrow: 'Was Sie hier sehen',
+                see_h2: 'Ein funktionierender KI-Chatbot — <em>für ein Restaurant</em>',
+                see_p: 'Diese Demo zeigt einen vollständig funktionierenden Chatbot für „Bella Italia." Er beantwortet echte Fragen, agiert wie ein geschulter Mitarbeiter und erfasst Buchungsanfragen — vollautomatisch.',
+                legend_label: 'Demo-Betrieb — Bella Italia Ristorante',
+                leg_type_k: 'Typ', leg_type_v: 'Italienisches Restaurant, Düsseldorfer Innenstadt',
+                leg_hours_k: 'Öffnungszeiten',
+                leg_cuisine_k: 'Küche', leg_cuisine_v: 'Toskanische Rezepte, Holzofen-Pizza, hausgemachte Pasta, saisonale Spezialitäten',
+                leg_seating_k: 'Plätze', leg_seating_v: '60 Plätze innen · 20 auf der Terrasse · privater Raum für bis zu 20 Personen',
+                leg_book_k: 'Reservierungen', leg_book_v: 'Über Chatbot, Telefon oder ohne Voranmeldung; Gruppen ab 8 Personen benötigen Anzahlung',
+                leg_menu_k: 'Menü-Highlights',
+                leg_diet_k: 'Diät', leg_diet_v: 'Vegetarische und glutenfreie Optionen verfügbar; Allergeninformationen auf Anfrage',
+                leg_contact_k: 'Kontakt',
+                context_note: '<strong>Dies ist eine Demo</strong> auf Basis eines Restaurants — ein allgemein verständliches Beispiel. Dieselbe Logik — Wissensdatenbank, automatische Antworten, Lead-Erfassung — funktioniert für <strong>jedes Unternehmen:</strong> Kliniken, Agenturen, E-Commerce, Immobilien, SaaS und mehr.',
+                demo_badge: 'Interaktive Demo',
+                demo_h2: 'Testen Sie den Chatbot selbst',
+                demo_p: 'Klicken Sie auf das Chat-Symbol unten rechts und stellen Sie beliebige Fragen. Hier sind einige typische Beispiele:',
+                dq1: 'Was sind Ihre Öffnungszeiten?',
+                dq2: 'Haben Sie vegetarische Optionen?',
+                dq3: 'Ich möchte einen Tisch für 4 Personen reservieren',
+                dq4: 'Wie kann ich Sie kontaktieren?',
+                dq5: 'Was gibt es auf der Speisekarte?',
+                feat1: 'Mehrsprachig (DE / EN / RU)',
+                feat2: 'Echte KI-Antworten',
+                feat3: 'Erfasst Buchungsanfragen',
+                feat4: 'Keine App erforderlich',
+                demo_hint: '💬 Chat-Symbol unten rechts anklicken — jetzt ausprobieren →',
+                uc_eyebrow: 'Weit über Restaurants hinaus',
+                uc_h2: 'Was dieses System <em>für jedes Unternehmen</em> leistet',
+                uc_p: 'Dieselbe Chatbot-Architektur lässt sich für Ihre Branche, Ihre Wissensdatenbank und Ihre Prozesse konfigurieren — in Tagen, nicht Monaten.',
+                uc1_h: 'Lead-Qualifizierung', uc1_p: 'Qualifizierungsfragen stellen, Leads automatisch bewerten und vielversprechende Kontakte in Echtzeit an Ihr Vertriebsteam weiterleiten.',
+                uc2_h: 'Kundensupport', uc2_p: 'FAQs beantworten, häufige Probleme lösen und komplexe Fälle eskalieren — ohne das Support-Team zu vergrößern.',
+                uc3_h: 'Buchungsautomatisierung', uc3_p: 'Kunden können rund um die Uhr Termine, Demos oder Beratungen buchen — integriert in Ihren bestehenden Kalender.',
+                uc4_h: 'CRM & Integrationen', uc4_p: 'Verbindung mit CRM, E-Mail, Notion oder Airtable. Jedes Gespräch aktualisiert Ihre Systeme automatisch.',
+                uc5_h: 'Kliniken & Gesundheitswesen', uc5_p: 'Patientenfragen beantworten, Terminanfragen bearbeiten und Informationen vor dem Besuch erfassen.',
+                uc6_h: 'Immobilien', uc6_p: 'Käufer- und Mieteranfragen qualifizieren, Besichtigungen planen und Präferenzen automatisch erfassen.',
+                uc7_h: 'E-Commerce', uc7_p: 'Produktfragen beantworten, Rückgaberichtlinien erläutern und Artikel basierend auf Kundenbedarf empfehlen.',
+                uc8_h: 'Agenturen & SaaS', uc8_p: 'Discovery Calls automatisieren, Onboarding-Fragen beantworten und Testnutzer qualifizieren, bevor sie abspringen.',
+                pr_eyebrow: 'Preise & Pakete', pr_h2: 'Transparent. <em>Keine Überraschungen.</em>', pr_p: 'Ein Produkt, zwei Wege — fertig konfigurierter KI-Chatbot oder Ihre eigene Idee, umgesetzt.',
+                pr1_badge: 'KI-Chatbot für Websites', pr1_h: 'Fertig in 3–7 Tagen',
+                pr1_sub: 'KI-Chatbot für Ihre Website — beantwortet Fragen, erfasst Leads und Buchungsanfragen. Auf Ihre Branche konfiguriert.',
+                pr_per: '/Monat', pr1_setup: 'Setup: kostenlos (Pilotphase) · danach einmalig €149',
+                pr1_f1: 'Wissensdatenbank mit Ihren Infos befüllt', pr1_f2: 'Lead- & Buchungserfassung automatisch',
+                pr1_f3: 'Mehrsprachig (DE / EN)', pr1_f4: 'Einbettung auf Ihrer Website', pr1_f5: 'Laufender Support per Telegram/E-Mail',
+                pr1_cta: 'Jetzt anfragen',
+                pr2_badge: 'Ihre Idee', pr2_h: 'Custom-Automatisierung',
+                pr2_sub: 'Sie verlieren täglich Zeit mit Aufgaben, die ein System erledigen könnte. Sagen Sie mir, wo der Schmerz ist — ich baue die Lösung.',
+                pr2_amount: 'Auf Anfrage', pr2_setup: 'Kurzes Gespräch → konkretes Angebot innerhalb von 24h',
+                pr2_f1: 'Kunden stellen immer wieder dieselben Fragen',
+                pr2_f2: 'Termine und Anfragen gehen im Alltagschaos unter',
+                pr2_f3: 'Interessenten warten zu lange auf eine Antwort',
+                pr2_f4: 'Wichtige Infos aus Gesprächen gehen verloren',
+                pr2_f5: 'Preis nach Aufwand — keine versteckten Kosten',
+                pr2_cta: 'Idee besprechen',
+                pr_note: '<strong>Pilotphase:</strong> Die ersten 3 Kunden zahlen keinen Setup — nur €69/Monat ab dem ersten Tag. So tragen beide Seiten kein Risiko — und ich bekomme echte Praxiserfahrung.',
+                gv_eyebrow: 'Bereit für den Start?',
+                gv_h2: 'Holen Sie sich Ihren <em>individuellen Chatbot</em>',
+                gv_p: 'Wir konfigurieren das System für Ihr Unternehmen — Ihre Wissensdatenbank, Ihr Ton, Ihre Prozesse. Die meisten Kunden gehen innerhalb einer Woche live.',
+                step1_h: 'Sie schildern Ihren Anwendungsfall', step1_p: 'Teilen Sie uns mit, was Sie brauchen: Support, Leads, Buchungen oder etwas vollständig Individuelles.',
+                step2_h: 'Wir konfigurieren Ihre KI', step2_p: 'Wissensdatenbank, Gesprächsfluss, Integrationen — alles maßgeschneidert für Ihr Unternehmen.',
+                step3_h: 'In 3–7 Tagen live', step3_p: 'Auf Ihrer Website einbetten, mit Ihren Tools verbinden und sofort mit der Lead-Erfassung starten.',
+                gv_btn1: 'Setup anfragen',
+                gv_btn2: 'Zuerst die Demo testen',
+                scarcity: 'Ich nehme monatlich 2–3 neue Kunden an, damit jedes Setup die nötige Sorgfalt bekommt.',
+                contact_h2: 'Sprechen wir über Ihr Unternehmen',
+                contact_p: 'Schildern Sie Ihren Anwendungsfall — ich zeige Ihnen genau, wie das System passt, mit einem konkreten Beispiel oder einer personalisierten Demo.',
+                contact_email: '✉ E-Mail schreiben',
+                footer_text: '© 2026 AI Chatbot Demo · Diese Seite ist eine Produktdemonstration.',
+            }
+        };
+
+        let currentLang = 'de';
+
+        function setLang(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key] !== undefined) {
+                    el.innerHTML = t[key];
+                }
+            });
+
+            // Update demo query buttons onclick with translated text
+            const chatKeys = ['dq1','dq2','dq3','dq4','dq5'];
+            document.querySelectorAll('.demo-query').forEach((btn, i) => {
+                const text = t[chatKeys[i]];
+                if (text) {
+                    btn.onclick = () => sendToChat(text);
+                }
+            });
+
+            // Update active button state
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+
+            document.documentElement.lang = lang;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => setLang('de'));
+
+        // ── UTILS ─────────────────────────────────────────────────────────────
+        function smoothScrollTo(e, id) {
+            e.preventDefault();
+            const target = document.getElementById(id);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function smoothScrollTo(e, id) {
+            e.preventDefault();
+            const target = document.getElementById(id);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function sendToChat(message) {
+            const toggleBtn = document.querySelector('#n8n-chat .chat-window-toggle, #n8n-chat button[class*="toggle"], #n8n-chat button[aria-label], #n8n-chat .n8n-chat__window-toggle');
+            const chatWindow = document.querySelector('#n8n-chat .chat-window, #n8n-chat [class*="window"]');
+
+            if (toggleBtn && (!chatWindow || chatWindow.style.display === 'none' || chatWindow.getAttribute('aria-hidden') === 'true')) {
+                toggleBtn.click();
+            } else {
+                const anyBtn = document.querySelector('#n8n-chat button');
+                if (anyBtn) anyBtn.click();
+            }
+
+            setTimeout(() => {
+                const input = document.querySelector('#n8n-chat textarea, #n8n-chat input[type="text"]');
+                if (input) {
+                    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value') ||
+                                                   Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');
+                    if (nativeInputValueSetter && nativeInputValueSetter.set) {
+                        nativeInputValueSetter.set.call(input, message);
+                    } else {
+                        input.value = message;
+                    }
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.focus();
+                }
+            }, 400);
+        }
+    </script>
+</body>
+</html>
